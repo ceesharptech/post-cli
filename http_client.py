@@ -108,9 +108,11 @@ def send_request(request):
                 "elapsed_time": error_execution_time
             }
             return error_output
-            # print(f"HTTP Error: {error_output}")
         except urllib.error.URLError as e:
-            print(f"Connection error occurred - {e.reason}")
+            return {
+                "error": "ConnectionError",
+                "reason": e.reason
+            }
     except (ValueError, TypeError, KeyError) as error:
         print(f"An error occurred: {error}")
 
