@@ -2,20 +2,19 @@ import urllib.request
 from urllib.parse import urlparse
 import json
 import urllib.error
-import urllib.request
 import time
 
 user_request = {
     "method": "POST",
-    "url": "https://example.com/users",
+    "url": "https://jsonplaceholder.typicode.com/posts",
     "headers": {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer abc123"
+        "Content-Type": "application/json"
     },
     "body": {
-        "name": "John",
-        "email": "john@example.com"
-    }
+        "title": 'foo',
+        "body": 'bar',
+        "userId": 1,
+  }
 }
 
 allowed_methods = {"POST", "GET", "PUT", "PATCH", "DELETE"}
@@ -23,9 +22,10 @@ url_schemes = {"http", "https"}
 required_parameters = {"method", "url"}
 
 def validate_request(request):
+    if not isinstance(request, dict):
+        raise TypeError(f"Invalid request format - check request input")
     # Check if required request parameters exist
     missing_params = required_parameters - request.keys()
-    method = request["method"].upper()
     headers = request.get("headers", {})
     body = request.get("body")
 
@@ -67,6 +67,8 @@ def send_request(request):
 
         if isinstance(body, str):
             request_body = body.encode('utf-8')
+        elif body is None:
+            request_body = None
         else:
             request_body = json.dumps(body).encode('utf-8')
 
@@ -77,28 +79,38 @@ def send_request(request):
             method = method
         )
 
+        start_time = time.perf_counter()
+
         try:
-            start_time = time.perf_counter()
             with urllib.request.urlopen(http_request, timeout=10) as response:
-                response_body = json.dumps(response.read().decode())
-                end_time = time.perf_counter()
-                execution_time = end_time - start_time
+                response_body = response.read().decode('utf-8')
+                response_end_time = time.perf_counter()
+                request_execution_time = response_end_time - start_time
                 response_output = {
                     "status_code": response.getcode(),
                     "reason": response.reason,
                     "headers": response.headers,
                     "body": response_body,
-                    "elapsed_time": execution_time
+                    "elapsed_time": request_execution_time
                 }
 
-                print(response_output)
+                return response_output
 
         except urllib.error.HTTPError as e:
-            print(f"HTTP Error: {e.code} - {e.reason}")
+            error_body = e.read().decode("utf-8")
+            error_end_time = time.perf_counter()
+            error_execution_time = error_end_time - start_time
+            error_output = {
+                "status_code": e.code,
+                "reason": e.reason,
+                "headers": e.headers,
+                "body": error_body,
+                "elapsed_time": error_execution_time
+            }
+            return error_output
+            # print(f"HTTP Error: {error_output}")
         except urllib.error.URLError as e:
-            print(f"Connecttion error occurred")
-
-        print("Sent!")
+            print(f"Connection error occurred - {e.reason}")
     except (ValueError, TypeError, KeyError) as error:
         print(f"An error occurred: {error}")
 

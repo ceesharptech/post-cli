@@ -6,7 +6,7 @@ import time
 
 
 http_request = urllib.request.Request(
-    url="https://jsonplaceholder.typicode.com/posts/8900",
+    url="https://jsonplaceholder.typicode.com/posts/3",
     method="GET"
 )
 
