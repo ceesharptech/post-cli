@@ -12,8 +12,10 @@ def format_body(body, content_type):
     if body in ({}, ""):
         return "Empty response body"
     elif body is not None:
+ 
         media_type = content_type.split(";")[0].strip().lower()
-        if (media_type == "application/json"):
+        is_json = (media_type == "application/json" or media_type.endswith("+json"))
+        if (is_json):
             try: 
                 body_string = json.loads(body)
                 return json.dumps(body_string, indent=4)
@@ -28,8 +30,10 @@ def format_body(body, content_type):
 
 def format_response(response):
     if "error" in response:
-        if response['error'] == "ConnectionError":
-            return f"Connection error occurrred!\n{str(response['reason'])}"
+        error_type = response["error"]
+        reason = response.get("reason", "Unknown error")
+
+        return f"{error_type}: {reason}"
     else:
         response_body = response.get("body")
         response_headers = response.get("headers", {})

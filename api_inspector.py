@@ -5,7 +5,7 @@ import json
 def collect_headers():
     headers = {}
     while True:
-        header_input = input("Enter header (Key: Value), or press Enter to finish: ")
+        header_input = input("Enter header (Key: Value), or press Enter to finish: ").strip()
         if header_input == "":
             break
         elif not ":" in header_input:
@@ -14,31 +14,30 @@ def collect_headers():
             key, value = header_input.split(":", 1)
             key = key.strip()
             value = value.strip()
-            if not key or not value:
+            if not key:
                 print("Invalid header - check input and try again\n")
             else:
                 headers[key] = value
     return headers
 
 def collect_body():
-    body = {}
     while True:
-        body_input = input("Enter request body, or press Enter for no body: ")
+        body_input = input("Enter request body, or press Enter for no body: ").strip()
+
         if body_input == "":
-            body = None
-            break
-        elif isinstance(body_input, str) and body_input != "":
-            body = body_input
-            break
-        elif isinstance(body_input, dict):
-            try:
-                body = json.loads(body_input)
-                break
-            except json.JSONDecodeError:
-                print("Invalid JSON body - check input and try again\n")
-        else:
-            print("Unsupported body input - use JSON or string")
-    return body
+            return None
+
+        try:
+            body = json.loads(body_input)
+
+            if not isinstance(body, dict):
+                print("Request body must be a JSON object\n")
+                continue
+
+            return body
+
+        except json.JSONDecodeError:
+            print("Invalid JSON body - check input and try again\n")
 
 def collect_request():
     method = input("Enter request method: ").strip().upper()
@@ -54,7 +53,6 @@ def collect_request():
     }
 
     return user_request
-
 
 def main():
     print("\n================== POST-CLI ==================\n")
@@ -75,6 +73,8 @@ def main():
             elif another_request != "y":
                 print("\nExiting POST-CLI...")
                 return
+            else:
+                break
 
 if __name__ == "__main__":
     main()

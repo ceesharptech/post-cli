@@ -42,6 +42,12 @@ def validate_request(request):
     if not isinstance(headers, dict):
         raise TypeError(f"Invalid type, header must be a dict")
 
+    for key, value in headers.items():
+        if not isinstance(key, str) and not isinstance(value, str):
+            raise TypeError(f"Header keys and values must be strings")
+        else:
+            break
+
     if body is not None and not isinstance(body, (str, dict)):
         raise TypeError(f"Invalid type, body must be a string or dict")
 
