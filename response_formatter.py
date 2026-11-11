@@ -1,16 +1,5 @@
 import json
 
-response = {
-    "status_code": 200,
-    "reason": "OK",
-    "headers": {
-        "Content-Type": "text/plain",
-        "Content-Length": 45
-    },
-    "body": 'Hello there',
-    "elapsed_time": 0.45
-}
-
 def format_headers(headers):
     formatted_headers = []
     
@@ -40,7 +29,7 @@ def format_body(body, content_type):
 def format_response(response):
     if "error" in response:
         if response['error'] == "ConnectionError":
-            return f"Connection error occurrred!\n{response['reason']}"
+            return f"Connection error occurrred!\n{str(response['reason'])}"
     else:
         response_body = response.get("body")
         response_headers = response.get("headers", {})
@@ -49,10 +38,7 @@ def format_response(response):
         formatted_headers = format_headers(response_headers)
         formatted_body = format_body(response_body, response_ct)
 
-        formatted_response = f"Status Code - {response['status_code']} \t Reason - {response['reason']}\nExecution Time - {response['elapsed_time'] * 1000}ms\n\nResponse Headers\n{formatted_headers}\n\nResponse Body \n{formatted_body}"
+        formatted_response = f"Status Code - {response['status_code']} \t Reason - {response['reason']}\nExecution Time - {response['elapsed_time'] * 1000:.3f}ms\n\nResponse Headers\n{formatted_headers}\n\nResponse Body \n{formatted_body}"
         return formatted_response
-
-formatted_output = format_response(response)
-print(formatted_output)
 
     
